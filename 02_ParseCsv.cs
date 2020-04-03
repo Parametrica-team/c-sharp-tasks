@@ -5,6 +5,14 @@ namespace Task2
 {
 	public class Program
 	{
+        private static string GetRandom(string text)
+        {
+            Random rnd = new Random();
+            var randomParts = text.Split(',');
+            int pIndex = rnd.Next(randomParts.Length);
+
+            return randomParts[pIndex].TrimStart();
+        }
         private static string GetData(string path, string key)
         {
             string[] lines = System.IO.File.ReadAllLines(path);
