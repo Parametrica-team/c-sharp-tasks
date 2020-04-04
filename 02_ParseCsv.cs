@@ -36,6 +36,9 @@ namespace Task2
 			string facadeNames = GetData(path, key);
 
 			string facadeName = GetRandom(facadeNames);
+
+            Console.WriteLine(facadeName);
+            Console.ReadLine();
         }
 
 
