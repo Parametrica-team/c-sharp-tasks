@@ -31,13 +31,13 @@ namespace Task2
         static void Main(string[] args)
         {
 			var path = @"E:\Repos\ROBOT_BI\Modules\Facades\Facade Blocks.csv";
-			var key = "kit_in_sec_0";
+			var key = "kit_in_sec_15";
 			
 			string facadeNames = GetData(path, key);
+			//string facadeName = GetRandom(facadeNames);
 
-			string facadeName = GetRandom(facadeNames);
-
-            Console.WriteLine(facadeName);
+            Console.WriteLine(facadeNames);
+            //Console.WriteLine(facadeName);
             Console.ReadLine();
         }
 
