@@ -5,6 +5,19 @@ namespace Task2
 {
 	public class Program
 	{
+        static void Main(string[] args)
+        {
+            var path = @"E:\Repos\ROBOT_BI\Modules\Facades\Facade Blocks.csv";
+            var key = "kit_in_sec_1";
+
+            string facadeNames = GetData(path, key);
+            string facadeName = GetRandom(facadeNames);
+
+            Console.WriteLine(facadeNames);
+            Console.WriteLine(facadeName);
+            Console.ReadLine();
+        }
+
         private static string GetRandom(string text)
         {
             Random rnd = new Random();
@@ -13,6 +26,7 @@ namespace Task2
 
             return randomParts[pIndex].TrimStart();
         }
+
         private static string GetData(string path, string key)
         {
             string[] lines = System.IO.File.ReadAllLines(path);
@@ -27,20 +41,5 @@ namespace Task2
             }
             return null;
         }
-
-        static void Main(string[] args)
-        {
-			var path = @"E:\Repos\ROBOT_BI\Modules\Facades\Facade Blocks.csv";
-			var key = "kit_in_sec_15";
-			
-			string facadeNames = GetData(path, key);
-			//string facadeName = GetRandom(facadeNames);
-
-            Console.WriteLine(facadeNames);
-            //Console.WriteLine(facadeName);
-            Console.ReadLine();
-        }
-
-
 	}
 }
