@@ -2,9 +2,9 @@ name: .NET Core
 
 on:
   push:
-    branches: [ Rusik ]
+    branches: [ testBranch]
   pull_request:
-    branches: [ Rusik ]
+    branches: [ testBranch]
 
 jobs:
   build:
