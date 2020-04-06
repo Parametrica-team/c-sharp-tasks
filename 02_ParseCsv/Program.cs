@@ -9,7 +9,7 @@ namespace calculation
         {
             string testOne = "dor_out_1st";
             string[] testTwo = new string[2];
-            testTwo[0] = "win_in_sec_0s";
+            testTwo[0] = "win_in_sec_0";
             testTwo[1] = "kit_out_sec_1";
 
             string path = @"E:\ROBOT_BI\Modules\Facades\Facade Blocks.csv";
@@ -29,28 +29,35 @@ namespace calculation
 
         public static string GetData(string path, string key)
         {
-            string[] allLines = System.IO.File.ReadAllLines(path);
-
-            Dictionary<string, string> users = new Dictionary<string, string>();
-
-            foreach (string oneLine in allLines)
-            {
-                try
-                {
-                    users.Add(oneLine.Split(';')[0], oneLine.Split(';')[1]);
-                }
-                catch (ArgumentException)
-                {
-
-                }
-            }
             try
             {
-                return users[key];
+                string[] allLines = System.IO.File.ReadAllLines(path);
+                Dictionary<string, string> users = new Dictionary<string, string>();
+                foreach (string oneLine in allLines)
+                {
+                    try
+                    {
+                        users.Add(oneLine.Split(';')[0], oneLine.Split(';')[1]);
+                    }
+                    catch (ArgumentException)
+                    {
+
+                    }
+                }
+
+                try
+                {
+                    return users[key];
+                }
+                catch (KeyNotFoundException)
+                {
+                    return ($"null");
+                }
             }
-            catch (KeyNotFoundException)
+
+            catch (System.IO.FileNotFoundException)
             {
-                return ($"null");
+                return ($"file not found");
             }
         }
         public static string[] GetData(string path, string[] keys)
