@@ -8,6 +8,7 @@ namespace _04_RenameProject
 {
     class Program
     {
+        [STAThreadAttribute]
         static void Main(string[] args)
         {
             //Выбрать папку с JSON
@@ -46,6 +47,14 @@ namespace _04_RenameProject
 
             //Найти все файлы JSON
             string[] jsonPaths = GetFileNames(folderPath, ".json");
+            if (jsonPaths == null)
+            {
+                Console.WriteLine("нет файлов .json");
+                Console.ReadKey();
+                return;
+            }
+                
+
 
 
             //Переименовать
@@ -59,12 +68,17 @@ namespace _04_RenameProject
 
         private static bool RenameProperties(string jsonPath, string filePath)
         {
+            
             throw new NotImplementedException();
+            return true;
         }
 
         private static string[] GetFileNames(string folderPath, string extension)
         {
-            throw new NotImplementedException();
+            var allFiles = System.IO.Directory.GetFiles(folderPath, "*", System.IO.SearchOption.AllDirectories);
+            // доделать
+
+            return null;
         }
     }
 }
