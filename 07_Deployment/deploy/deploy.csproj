@@ -9,4 +9,8 @@
     <OutputPath></OutputPath>
   </PropertyGroup>
 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="copy $(TargetDir) &quot;C:\Program Files\Deploy\&quot;" />
+  </Target>
+
 </Project>

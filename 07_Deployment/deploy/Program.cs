@@ -23,6 +23,7 @@ namespace deploy
                 }
             }
 
+            Console.WriteLine();
                 
         }
 
@@ -54,7 +55,6 @@ namespace deploy
                 Console.WriteLine(line);
             }
             writer.Close();
-
         }
 
         private static void BuildRelease(string currentFolder, string[] args)
