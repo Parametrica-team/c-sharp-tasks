@@ -20,15 +20,19 @@ namespace Task2
 
         private static string GetRandom(string text)
         {
+<<<<<<< HEAD
             Random rnd = new Random();
             var randomParts = text.Split(',');
             int pIndex = rnd.Next(randomParts.Length);
 
             return randomParts[pIndex].TrimStart();
+=======
+>>>>>>> origin
         }
 
         private static string GetData(string path, string key)
         {
+<<<<<<< HEAD
             string[] lines = System.IO.File.ReadAllLines(path);
 
             for (int i = 0; i < lines.Length; i++)
@@ -40,6 +44,8 @@ namespace Task2
                     return parts[1];
             }
             return null;
+=======
+>>>>>>> origin
         }
 	}
 }

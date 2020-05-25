@@ -337,5 +337,9 @@ ASALocalRun/
 .localhistory/
 
 # BeatPulse healthcheck temp database
+<<<<<<< HEAD
 healthchecksdb
 03_timeGH/time.gh
+=======
+healthchecksdb
+>>>>>>> origin
