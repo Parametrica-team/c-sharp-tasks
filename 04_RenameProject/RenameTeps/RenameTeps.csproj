@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{AA645C0B-6952-4DE5-91C1-7908A0365E68}</ProjectGuid>
+    <ProjectGuid>{2AF2A095-33AF-40E7-8CAB-AFD7C3B28A73}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>RenameProject</RootNamespace>
-    <AssemblyName>RenameProject</AssemblyName>
+    <RootNamespace>RenameTeps</RootNamespace>
+    <AssemblyName>RenameTeps</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

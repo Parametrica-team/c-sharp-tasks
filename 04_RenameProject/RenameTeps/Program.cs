@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
-namespace RenameProject
+namespace RenameTeps
 {
     class Program
     {
@@ -26,8 +25,6 @@ namespace RenameProject
 
             if (string.IsNullOrEmpty(folderPath))
                 return;
-
-
             //Выбрать файл csv для переименования
             var openFileDialog = new System.Windows.Forms.OpenFileDialog()
             {
@@ -38,7 +35,6 @@ namespace RenameProject
             result = openFileDialog.ShowDialog(); // открывает окно выбора файла
 
             string filePath = "";
-            string[] lines = System.IO.File.ReadAllLines(filePath);
 
             if (result == System.Windows.Forms.DialogResult.OK)
                 filePath = openFileDialog.FileName;
@@ -55,12 +51,10 @@ namespace RenameProject
                 Console.ReadKey();
                 return;
             }
-
-
+            //Переименовать
             foreach (var jsonPath in jsonPaths)
             {
                 bool success = RenameProperties(jsonPath, filePath);
-
 
                 //Вывести на коснсоль результат в виде: С:/.../вася.json переименован (или "не найдено подходящих свойств")
             }
@@ -70,24 +64,6 @@ namespace RenameProject
         {
 
             throw new NotImplementedException();
-
-            {
-                foreach (string line in lines)
-                {
-                    var a = line.Split(';');
-                    var x = a[0];
-                }
-                return "";
-
-                var key = "project_name" || "code_name" || "part_name";
-
-                if (x == key)
-
-                {
-                    return a[1].Trim();
-                }
-            }
-
             return true;
         }
 
@@ -97,8 +73,6 @@ namespace RenameProject
             // доделать
 
             return null;
-
-
         }
     }
 }
