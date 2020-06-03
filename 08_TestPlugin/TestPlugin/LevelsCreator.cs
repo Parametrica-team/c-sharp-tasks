@@ -108,11 +108,11 @@ namespace TestPlugin
                         {
                             topRow = true;
                             bottomSteps += codeBotSteps;
-                            points[i] = new Point3d(bottomSteps, 0, 0);
+                            points[i] = new Point3d(bottomSteps * step, 0, 0);
                         }
                         else //обычные нижние хаты
                         {
-                            points[i] = new Point3d(bottomSteps, 0, 0);
+                            points[i] = new Point3d(bottomSteps * step, 0, 0);
                             bottomSteps += codeBotSteps;
                         }
                             
@@ -122,11 +122,11 @@ namespace TestPlugin
                         if (codes[i].StartsWith("CR")) //крайняя правая квартира верхнего ряда
                         {
                             topSteps += codeTopSteps;
-                            points[i] = new Point3d(topSteps, height, 0);
+                            points[i] = new Point3d(topSteps * step, height, 0);
                         }
                         else //обычные квартиры сверху и ллу
                         {
-                            points[i] = new Point3d(topSteps, height, 0);
+                            points[i] = new Point3d(topSteps * step, height, 0);
                             topSteps += codeTopSteps;
                         }    
                             
