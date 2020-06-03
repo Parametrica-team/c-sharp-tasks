@@ -13,7 +13,7 @@ namespace WindowRecess
 
             double GetAngle(double height, double depth)
             {
-                var angle = Math.PI/2-(Math.Atan((depth / (height / 2)) + Math.PI*0));
+                var angle = Math.PI/2-(Math.Atan((depth / height) + Math.PI*0));
                 return angle;
             }
 
