@@ -1,7 +1,9 @@
-﻿using Robot;
+﻿using Rhino.Geometry;
+using Robot;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Windows.Forms.VisualStyles;
 
 namespace TestPlugin
@@ -10,6 +12,7 @@ namespace TestPlugin
     {
         private List<Flat> flats;
         private string combinations;
+        private Dictionary<string, List<Flat>> dict;
 
         public List<Level> Levels { get; }
 
@@ -20,6 +23,9 @@ namespace TestPlugin
 
             //удалить лишние строки
             var goodCombinations = DeleteExtraRows();
+
+            //создать словать соответсвий квартир и кодов
+            dict = flats.GroupBy(f => f.Code).ToDictionary(g => g.Key, g => g.ToList());
 
             //создать уровни из комбинаций
             List<Level> levels = CreateLevelFromCombinations(goodCombinations);
@@ -61,11 +67,94 @@ namespace TestPlugin
         /// <returns></returns>
         private List<Level> CreateLevelFromCombinations(List<string> goodCombinations)
         {
-            var result = new List<Level>();
+            var levels = new List<Level>();
 
+            foreach (var comb in goodCombinations)
+            {
+                var codes = comb.Split(',');
+                var points = new Point3d[codes.Length];               
+                
+                //верхние шаги начинаются не с нуля, если у левая нижняя квартира - распашонка
+                int topSteps = int.Parse(codes[0].Split('_')[1]);
+                int bottomSteps = 0;
 
+                int step = 3500;
+                int height = 15000;
 
-            return result;
+                bool topRow = false;
+
+                //Перебор кодов в строке и создание точек вставки
+                for (int i = 0; i < codes.Length; i++)
+                {
+                    //количество верхних и нижних шагов
+                    int codeTopSteps;
+                    int codeBotSteps;
+
+                    if (codes[i] == "llu")
+                    {
+                        codeTopSteps = 2;
+                        codeBotSteps = 0;
+                    }
+                    else
+                    {
+                        codeTopSteps = int.Parse(codes[i].Split('_')[1]);
+                        codeBotSteps = int.Parse(codes[i].Split('_')[2]);
+                    }
+                    
+
+                    if (!topRow) //нижний ряд
+                    {
+                        if (codes[i].StartsWith("CR")) //крайняя правая квартира нижнего ряда
+                        {
+                            topRow = true;
+                            bottomSteps += codeBotSteps;
+                            points[i] = new Point3d(bottomSteps, 0, 0);
+                        }
+                        else //обычные нижние хаты
+                        {
+                            points[i] = new Point3d(bottomSteps, 0, 0);
+                            bottomSteps += codeBotSteps;
+                        }
+                            
+                    }
+                    else //верхний ряд
+                    {
+                        if (codes[i].StartsWith("CR")) //крайняя правая квартира верхнего ряда
+                        {
+                            topSteps += codeTopSteps;
+                            points[i] = new Point3d(topSteps, height, 0);
+                        }
+                        else //обычные квартиры сверху и ллу
+                        {
+                            points[i] = new Point3d(topSteps, height, 0);
+                            topSteps += codeTopSteps;
+                        }    
+                            
+                    }
+                    
+                }
+
+                //Переместить квартиры на место
+                List<List<Flat>> levelFlats = MoveFlats(codes, points);
+
+                foreach (var lf in levelFlats)
+                {
+                    levels.Add(new Level(lf));
+                }
+            }
+
+            return levels;
+        }
+
+        /// <summary>
+        /// Передвигает нужные квартиры на место
+        /// </summary>
+        /// <param name="codes"></param>
+        /// <param name="points"></param>
+        /// <returns></returns>
+        private List<List<Flat>> MoveFlats(string[] codes, Point3d[] points)
+        {
+            throw new NotImplementedException();
         }
 
         /// <summary>
