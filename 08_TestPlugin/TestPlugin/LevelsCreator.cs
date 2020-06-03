@@ -21,6 +21,9 @@ namespace TestPlugin
             this.flats = flats;
             this.combinations = combinationsTxt;
 
+            //Добавить ЛЛУ
+            AddLLU();
+
             //удалить лишние строки
             var goodCombinations = DeleteExtraRows();
 
@@ -35,10 +38,14 @@ namespace TestPlugin
 
             int hStep = 100000;
             int vStep = 50000;
-            Levels = PlaceLevels(sortedLevels, hStep, vStep);
-
+            //Levels = PlaceLevels(sortedLevels, hStep, vStep);
+            Levels = levels;
         }
 
+        private void AddLLU()
+        {
+            //throw new NotImplementedException();
+        }
 
         private List<Level> PlaceLevels(List<List<Level>> sortedLevels, int horisontalStep, int verticalStep)
         {
@@ -139,7 +146,8 @@ namespace TestPlugin
 
                 foreach (var lf in levelFlats)
                 {
-                    levels.Add(new Level(lf));
+                    var lev = new Level(lf);
+                    levels.Add(lev);
                 }
             }
 
@@ -154,7 +162,36 @@ namespace TestPlugin
         /// <returns></returns>
         private List<List<Flat>> MoveFlats(string[] codes, Point3d[] points)
         {
-            throw new NotImplementedException();
+            List<Flat> fl = new List<Flat>();
+
+            for (int i = 0; i< codes.Length; i++)
+            {
+                foreach (var flat in flats)
+                {
+
+                    if (flat.Code == codes[i])
+                    {
+                        var vec = new Vector3d(points[i].X - flat.BasePlane.OriginX,
+                            points[i].Y - flat.BasePlane.OriginY,
+                            points[i].Z - flat.BasePlane.OriginZ);
+                        
+                        var xform = Transform.Translation(vec);
+
+                        var levelFlat = new Flat(flat);
+                        levelFlat = levelFlat.Transform(xform) as Flat;
+
+                        fl.Add(levelFlat);
+                        break;
+                    }
+                }
+            }
+
+
+
+            var result = new List<List<Flat>>();
+            result.Add(fl);
+            return result;
+
         }
 
         /// <summary>
