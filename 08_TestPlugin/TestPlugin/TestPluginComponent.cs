@@ -60,7 +60,7 @@ namespace TestPlugin
 
             var levelCreator = new LevelsCreator(flats, combinationsTxt);
 
-            DA.SetData(0, levelCreator.Levels);
+            DA.SetDataList(0, levelCreator.Levels);
         }
 
         /// <summary>
