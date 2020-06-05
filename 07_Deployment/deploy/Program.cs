@@ -42,8 +42,12 @@ namespace deploy
             }
 
             //get all content
+            //не импортировать из .git и .svn
             var allPaths = Directory.GetFiles(deployFolder, "*", SearchOption.AllDirectories);
-            var relativePaths = allPaths.Select(p => Path.GetRelativePath(deployFolder, p)).ToList();
+            var relativePaths = allPaths
+                .Select(p => Path.GetRelativePath(deployFolder, p))
+                .Where(p => !p.StartsWith(".git"))
+                .ToList();
 
             var writer = File.CreateText(".deploysettings");
             Console.WriteLine("Запись файла .deploysettings...");
@@ -63,7 +67,7 @@ namespace deploy
 
             if (!File.Exists(settingsPath))
             {
-                Console.WriteLine("Не найден файл .settings");
+                Console.WriteLine("Не найден файл .deploysettings");
                 return;
             }
 
@@ -86,15 +90,23 @@ namespace deploy
 
             var deployPath = Path.GetFullPath(settingsLines[0]);
             
+            //если папки нет, то ее нужно создать
             Directory.CreateDirectory(deployPath);
 
             //delete old stuff
-            var oldDirs = Directory.GetDirectories(deployPath);
+            var oldDirs = Directory.GetDirectories(deployPath)
+                .Where(d => !IsGit(d, ".git", deployPath))
+                .ToArray();
+
             foreach (var dir in oldDirs)
             {
                 Directory.Delete(dir, true);
             }
-            var oldFiles = Directory.GetFiles(deployPath);
+
+            var oldFiles = Directory.GetFiles(deployPath)
+                .Where(p => !IsGit(p, ".git", deployPath))
+                .ToArray();
+
             foreach (var path in oldFiles)
             {
                 File.Delete(path);
@@ -111,6 +123,12 @@ namespace deploy
                     Console.WriteLine($"Copied to {targetPath}");
                 }                
             }
+        }
+
+        private static bool IsGit(string path, string gitName, string relativeToPath)
+        {
+            var relPath = Path.GetRelativePath(relativeToPath, path);
+            return relPath.StartsWith(gitName);
         }
     }
 }

@@ -2,7 +2,8 @@
   "profiles": {
     "deploy": {
       "commandName": "Project",
-      "commandLineArgs": "update"
+      "commandLineArgs": "build",
+      "workingDirectory": "E:\\Repos\\ROBOT_BI"
     }
   }
 }
