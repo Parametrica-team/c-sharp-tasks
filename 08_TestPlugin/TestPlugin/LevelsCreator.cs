@@ -38,8 +38,8 @@ namespace TestPlugin
 
             int hStep = 100000;
             int vStep = 50000;
-            //Levels = PlaceLevels(sortedLevels, hStep, vStep);
-            Levels = levels;
+            Levels = PlaceLevels(sortedLevels, hStep, vStep);
+            //Levels = levels;
         }
 
         private void AddLLU()
@@ -49,7 +49,22 @@ namespace TestPlugin
 
         private List<Level> PlaceLevels(List<List<Level>> sortedLevels, int horisontalStep, int verticalStep)
         {
-            throw new NotImplementedException();
+            var resultLevels = new List<Level>();
+
+            for (int i = 0; i < sortedLevels.Count; i++)
+            {
+                for (int j = 0; j < sortedLevels[i].Count; j++)
+                {
+                    var level = sortedLevels[i][j];
+
+                    var xform = Transform.Translation(i * horisontalStep, -j * verticalStep, 0);
+                    var levelInPlace = level.Transform(xform) as Level;
+                    
+                    resultLevels.Add(levelInPlace);
+                }
+            }
+
+            return resultLevels;
         }
 
         /// <summary>
@@ -59,11 +74,30 @@ namespace TestPlugin
         /// <returns></returns>
         private List<List<Level>> SortLevels(List<Level> levels)
         {
+            /*
+            return levels.GroupBy(l => l.AptTypology)
+                .ToDictionary(k => k.Key, v => v.ToList())
+                .Values
+                .ToList();
+            */
+
             var result = new List<List<Level>>();
+            var dic = new Dictionary<string, List<Level>>();
 
-            //levels[0].AptTypology
+            foreach (var level in levels)
+            {
+                var kvart = level.AptTypology;
+                var kvartText = string.Join("_", kvart);  //0_5_2_0_3 - key      List<Level>
+                if (dic.ContainsKey(kvartText))
+                    dic[kvartText].Add(level);
+                else
+                    dic.Add(kvartText, new List<Level> { level });
+            }
 
-
+            foreach (var key in dic.Keys)
+            {
+                result.Add(dic[key]);
+            }
             return result;
         }
 
@@ -146,7 +180,21 @@ namespace TestPlugin
 
                 foreach (var lf in levelFlats)
                 {
+                    //временно, потом поправить
+                    
                     var lev = new Level(lf);
+                    lev.Id = "temp";
+                    //lev.Llu = new LLU();
+
+                    var pts = lev.Flats.SelectMany(f => Robot.Util.GetCurveCorners(f.Contour)).ToList();
+                    var bbox = new BoundingBox(pts);
+                    var ptsCor = bbox.GetCorners().Take(4).ToList();
+                    ptsCor.Add(ptsCor[0]);
+                    var poly = new Polyline(ptsCor).ToPolylineCurve();
+
+                    lev.Contour = poly;
+                    
+
                     levels.Add(lev);
                 }
             }
