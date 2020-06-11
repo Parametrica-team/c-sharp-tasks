@@ -1,6 +1,7 @@
 ﻿using Rhino.Geometry;
 using Robot;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Linq;
@@ -13,22 +14,22 @@ namespace TestPlugin
         private List<Flat> flats;
         private string combinations;
         private Dictionary<string, List<Flat>> dict;
+        private List<List<Flat>> AllFlatCombinations;
+        private Stack<Flat> currentFlatStack;
 
         public List<Level> Levels { get; }
+                
 
         public LevelsCreator(List<Flat> flats, string combinationsTxt)
         {
             this.flats = flats;
             this.combinations = combinationsTxt;
 
-            //Добавить ЛЛУ
-            AddLLU();
+            //создать словать соответсвий квартир и кодов
+            dict = MakeCodeDictionary(flats);
 
             //удалить лишние строки
-            var goodCombinations = DeleteExtraRows();
-
-            //создать словать соответсвий квартир и кодов
-            dict = flats.GroupBy(f => f.Code).ToDictionary(g => g.Key, g => g.ToList());
+            var goodCombinations = DeleteExtraRows();            
 
             //создать уровни из комбинаций
             List<Level> levels = CreateLevelFromCombinations(goodCombinations);
@@ -42,10 +43,30 @@ namespace TestPlugin
             //Levels = levels;
         }
 
-        private void AddLLU()
+        private Dictionary<string, List<Flat>> MakeCodeDictionary(List<Flat> flats)
         {
-            //throw new NotImplementedException();
+            var tDict = new Dictionary<string, List<Flat>>();
+            foreach (var flat in flats)
+            {
+                if (flat.Id.ToLower().StartsWith("llu"))
+                {
+                    if (tDict.ContainsKey("llu"))
+                        tDict["llu"].Add(flat);
+                    else
+                        tDict.Add("llu", new List<Flat> { flat });
+                }
+                else
+                {
+                    if (tDict.ContainsKey(flat.Code))
+                        tDict[flat.Code].Add(flat);
+                    else
+                        tDict.Add(flat.Code, new List<Flat> { flat });
+                }
+            }
+
+            return tDict;
         }
+       
 
         private List<Level> PlaceLevels(List<List<Level>> sortedLevels, int horisontalStep, int verticalStep)
         {
@@ -175,8 +196,13 @@ namespace TestPlugin
                     
                 }
 
+                //Собрать все возможные комбинации из доступных квартир для текущего кода уровня
+                AllFlatCombinations = new List<List<Flat>>();
+                currentFlatStack = new Stack<Flat>();
+                GetCombinations(codes, 0);
+
                 //Переместить квартиры на место
-                List<List<Flat>> levelFlats = MoveFlats(codes, points);
+                List<List<Flat>> levelFlats = MoveFlats(points);
 
                 foreach (var lf in levelFlats)
                 {
@@ -202,44 +228,60 @@ namespace TestPlugin
             return levels;
         }
 
+        private void GetCombinations(string[] codes, int index)
+        {
+            //если по такому коду нет квартиры, то отбой
+            if (!dict.ContainsKey(codes[index])) return;
+            var flats = dict[codes[index]];
+
+            foreach (var flat in flats)
+            {
+                currentFlatStack.Push(flat);
+                if (index == codes.Length)
+                {
+                    var temp = currentFlatStack.ToList();
+                    temp.Reverse();
+                    AllFlatCombinations.Add(temp);
+                }
+                else
+                {
+                    GetCombinations(codes, index++);
+                }
+                currentFlatStack.Pop();
+            }
+        }
+
         /// <summary>
         /// Передвигает нужные квартиры на место
         /// </summary>
         /// <param name="codes"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        private List<List<Flat>> MoveFlats(string[] codes, Point3d[] points)
+        private List<List<Flat>> MoveFlats(Point3d[] points)
         {
-            List<Flat> fl = new List<Flat>();
+            var result = new List<List<Flat>>();
 
-            for (int i = 0; i< codes.Length; i++)
-            {
-                foreach (var flat in flats)
+            foreach (List<Flat> flatComb in AllFlatCombinations)
+            {                
+                List<Flat> fl = new List<Flat>();
+                for (int i = 0; i < points.Length; i++)
                 {
+                    var flat = flatComb[i];
 
-                    if (flat.Code == codes[i])
-                    {
-                        var vec = new Vector3d(points[i].X - flat.BasePlane.OriginX,
+                    var vec = new Vector3d(points[i].X - flat.BasePlane.OriginX,
                             points[i].Y - flat.BasePlane.OriginY,
                             points[i].Z - flat.BasePlane.OriginZ);
-                        
-                        var xform = Transform.Translation(vec);
 
-                        var levelFlat = new Flat(flat);
-                        levelFlat = levelFlat.Transform(xform) as Flat;
+                    var xform = Transform.Translation(vec);
 
-                        fl.Add(levelFlat);
-                        break;
-                    }
+                    var levelFlat = new Flat(flat);
+                    levelFlat = levelFlat.Transform(xform) as Flat;
+
+                    fl.Add(levelFlat);
                 }
+                result.Add(fl);
             }
-
-
-
-            var result = new List<List<Flat>>();
-            result.Add(fl);
             return result;
-
         }
 
         /// <summary>
