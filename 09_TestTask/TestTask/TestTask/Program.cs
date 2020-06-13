@@ -16,6 +16,7 @@ namespace TestTask
             List<string> findCities = GetData(path);
             foreach (var e in findCities)
                 Console.WriteLine(e);
+            Console.WriteLine(findCities.Count);
             Console.ReadLine();
         }
 
