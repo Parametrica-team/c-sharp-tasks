@@ -27,6 +27,7 @@ namespace TestPlugin
 
             //создать словать соответсвий квартир и кодов
             dict = MakeCodeDictionary(flats);
+            dict.Remove(string.Empty);
 
             //удалить лишние строки
             var goodCombinations = DeleteExtraRows();            
