@@ -62,20 +62,22 @@ namespace SheetsQuickstart
             var headers = rows[0].Values;
             foreach (var row in rows.Skip(1))
             {
-                var hblockCode = row.Values[1].FormattedValue;
                 var flats = new List<string>();
+                var hblockcode = row.Values[1].FormattedValue+".txt";
                 for (int i = 5; i < row.Values.Count; i++)
                 {
                     var cell = row.Values[i];
                     var bgColor = cell.EffectiveFormat.BackgroundColor;
                     var bgColorNumber = (bgColor.Blue + bgColor.Red + bgColor.Green) / 3.0;
-
                     if (bgColorNumber != null && bgColorNumber != 1) //не белый
                         flats.Add(headers[i].FormattedValue);
+
                 }
-                var path = Path.Combine(currentDirectory, hblockCode + ".txt");
-                File.WriteAllLines(path, flats, System.Text.Encoding.Default);
+                var path = Path.Combine(currentDirectory, hblockcode);
+                File.WriteAllLines(path, flats);
             }
+
+            
         }
     }
 }

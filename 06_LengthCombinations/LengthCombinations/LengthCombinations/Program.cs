@@ -8,19 +8,26 @@ namespace LengthCombinations
 {
     class Program
     {
+        
         static void Main(string[] args)
         {
-            var values = new int[] { 2, 3, 4 };
+            List<int> values = new List<int>() { 2, 3, 4};
             var length = 7;
 
-             GetAllCombinations(List<int> values, int length);
+             GetAllCombinations(values, length);
 
         }
 
         private static  List<List<int>> GetAllCombinations(List<int> values, int length)
         {
+            //List<int> allSteps;
+            Stack<int> stack;
+            List<int[]> res;
+            int fullLength; 
+
             foreach (var step in values)
             {
+                
                 stack.Push(step);
                 //Print(step.ToString());
                 int stackLength = GetStackLength();
