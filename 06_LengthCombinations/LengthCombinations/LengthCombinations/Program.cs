@@ -19,7 +19,31 @@ namespace LengthCombinations
 
         private static  List<List<int>> GetAllCombinations(List<int> values, int length)
         {
+            foreach (var step in values)
+            {
+                stack.Push(step);
+                //Print(step.ToString());
+                int stackLength = GetStackLength();
+                if (stackLength > fullLength)
+                {
+                    //добавить без последнего компонента
+                    stack.Pop();
+                    res.Add(stack.ToArray());
+                    continue;
+                }
+                else if (stackLength == fullLength)
+                {
+                    res.Add(stack.ToArray());
+                    stack.Pop();
+                    break;
+                }
+                else
+                {
+                    AddStep();
+                    stack.Pop();
+                }
 
+            }
             throw new NotImplementedException();
         }
     }
