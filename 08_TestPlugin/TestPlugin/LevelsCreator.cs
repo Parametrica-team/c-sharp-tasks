@@ -25,6 +25,17 @@ namespace TestPlugin
             this.flats = flats;
             this.combinations = combinationsTxt;
 
+            //добавить квартиру llu
+            var lluFlat = new Flat()
+            {
+                Contour = new Rectangle3d(Plane.WorldXY, 7000, -6093).ToNurbsCurve(),
+                TopSteps = 2,
+                Id = "llu",
+                BasePlane = Plane.WorldXY,
+                FlatWindows = new List<Window>() { new Window(Plane.WorldZX)}
+            };
+            this.flats.Add(lluFlat);
+
             //создать словать соответсвий квартир и кодов
             dict = MakeCodeDictionary(flats);
             dict.Remove(string.Empty);
@@ -142,7 +153,7 @@ namespace TestPlugin
                 int bottomSteps = 0;
 
                 int step = 3500;
-                int height = 15000;
+                int height = 14760;
 
                 bool topRow = false;
 
@@ -232,9 +243,11 @@ namespace TestPlugin
         private void GetCombinations(string[] codes, int index)
         {
             //если по такому коду нет квартиры, то отбой
+            
             if (!dict.ContainsKey(codes[index])) return;
             var flats = dict[codes[index]];
 
+            ++index;
             foreach (var flat in flats)
             {
                 currentFlatStack.Push(flat);
@@ -246,10 +259,11 @@ namespace TestPlugin
                 }
                 else
                 {
-                    GetCombinations(codes, index++);
+                    GetCombinations(codes, index);                    
                 }
                 currentFlatStack.Pop();
             }
+                
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using System.Linq;
 
 namespace SheetsQuickstart
 {
@@ -45,7 +46,7 @@ namespace SheetsQuickstart
 
             // Define request parameters.
             String spreadsheetId = "1kL0cEVkh0dTVY6CfCCJij30Sh_D9XhylaOVFQxsZJXk";
-            String range = "Типовой этаж!A2:AA10";
+            String range = "Типовой этаж!3:14";
             SpreadsheetsResource.GetRequest request = service.Spreadsheets.Get(spreadsheetId);
             request.Ranges = range;
             request.IncludeGridData = true;
@@ -56,9 +57,28 @@ namespace SheetsQuickstart
             SaveHblockFlats(sheetData.RowData, Environment.CurrentDirectory);
         }
 
-        private static void SaveHblockFlats(IList<RowData> rowData, string currentDirectory)
+        private static void SaveHblockFlats(IList<RowData> rows, string currentDirectory)
         {
-            throw new NotImplementedException();
+            var flatIds = rows.Last().Values;
+            foreach (var row in rows)
+            {
+                var hblockCode = row.Values[1].FormattedValue;
+                if (string.IsNullOrEmpty(hblockCode))
+                    continue;
+
+                var flats = new List<string>();
+                for (int i = 5; i < row.Values.Count; i++)
+                {
+                    var cell = row.Values[i];
+                    var bgColor = cell.EffectiveFormat.BackgroundColor;
+                    var bgColorNumber = (bgColor.Blue + bgColor.Red + bgColor.Green) / 3.0;
+
+                    if (bgColorNumber != null && bgColorNumber != 1) //не белый
+                        flats.Add(flatIds[i].FormattedValue);
+                }
+                var path = Path.Combine(currentDirectory, hblockCode + ".txt");
+                File.WriteAllLines(path, flats, System.Text.Encoding.Default);
+            }
         }
     }
 }

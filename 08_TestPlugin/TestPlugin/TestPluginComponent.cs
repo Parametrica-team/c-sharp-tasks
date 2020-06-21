@@ -35,6 +35,7 @@ namespace TestPlugin
         {
             pManager.AddGenericParameter("Flats", "F", "All available flats", GH_ParamAccess.list);
             pManager.AddTextParameter("Combinations", "C", "All possible combinations", GH_ParamAccess.item);
+           // pManager.AddNumberParameter("");
         }
 
         /// <summary>
