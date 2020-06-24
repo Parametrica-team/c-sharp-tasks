@@ -14,8 +14,9 @@ namespace TestPlugin
         private List<Flat> flats;
         private string combinations;
         private Dictionary<string, List<Flat>> dict;
-        private List<List<Flat>> AllFlatCombinations;
+        //private List<List<Flat>> AllFlatCombinations;
         private Stack<Flat> currentFlatStack;
+        private Dictionary<string, List<List<Flat>>> allFlatCombinations;
 
         public List<Level> Levels { get; }
                 
@@ -142,102 +143,113 @@ namespace TestPlugin
         private List<Level> CreateLevelFromCombinations(List<string> goodCombinations)
         {
             var levels = new List<Level>();
+            allFlatCombinations = new Dictionary<string, List<List<Flat>>>();
 
             foreach (var comb in goodCombinations)
             {
-                var codes = comb.Split(',');
-                var points = new Point3d[codes.Length];               
+                var codes = comb.Split(',');                
+
                 
-                //верхние шаги начинаются не с нуля, если у левая нижняя квартира - распашонка
-                int topSteps = int.Parse(codes[0].Split('_')[1]);
-                int bottomSteps = 0;
-
-                int step = 3500;
-                int height = 14760;
-
-                bool topRow = false;
-
-                //Перебор кодов в строке и создание точек вставки
-                for (int i = 0; i < codes.Length; i++)
-                {
-                    //количество верхних и нижних шагов
-                    int codeTopSteps;
-                    int codeBotSteps;
-
-                    if (codes[i] == "llu")
-                    {
-                        codeTopSteps = 2;
-                        codeBotSteps = 0;
-                    }
-                    else
-                    {
-                        codeTopSteps = int.Parse(codes[i].Split('_')[1]);
-                        codeBotSteps = int.Parse(codes[i].Split('_')[2]);
-                    }
-                    
-
-                    if (!topRow) //нижний ряд
-                    {
-                        if (codes[i].StartsWith("CR")) //крайняя правая квартира нижнего ряда
-                        {
-                            topRow = true;
-                            bottomSteps += codeBotSteps;
-                            points[i] = new Point3d(bottomSteps * step, 0, 0);
-                        }
-                        else //обычные нижние хаты
-                        {
-                            points[i] = new Point3d(bottomSteps * step, 0, 0);
-                            bottomSteps += codeBotSteps;
-                        }
-                            
-                    }
-                    else //верхний ряд
-                    {
-                        if (codes[i].StartsWith("CR")) //крайняя правая квартира верхнего ряда
-                        {
-                            topSteps += codeTopSteps;
-                            points[i] = new Point3d(topSteps * step, height, 0);
-                        }
-                        else //обычные квартиры сверху и ллу
-                        {
-                            points[i] = new Point3d(topSteps * step, height, 0);
-                            topSteps += codeTopSteps;
-                        }    
-                            
-                    }
-                    
-                }
 
                 //Собрать все возможные комбинации из доступных квартир для текущего кода уровня
-                AllFlatCombinations = new List<List<Flat>>();
+                //AllFlatCombinations = new List<List<Flat>>();
                 currentFlatStack = new Stack<Flat>();
                 GetCombinations(codes, 0);
 
+                //var points = GetPoints(codes);
+
                 //Переместить квартиры на место
-                List<List<Flat>> levelFlats = MoveFlats(points);
+                //List<List<Flat>> levelFlats = MoveFlats(points);
 
-                foreach (var lf in levelFlats)
-                {
-                    //временно, потом поправить
-                    
-                    var lev = new Level(lf);
-                    lev.Id = "temp";
-                    //lev.Llu = new LLU();
+                //foreach (var lf in levelFlats)
+                //{
+                //    //временно, потом поправить
 
-                    var pts = lev.Flats.SelectMany(f => Robot.Util.GetCurveCorners(f.Contour)).ToList();
-                    var bbox = new BoundingBox(pts);
-                    var ptsCor = bbox.GetCorners().Take(4).ToList();
-                    ptsCor.Add(ptsCor[0]);
-                    var poly = new Polyline(ptsCor).ToPolylineCurve();
+                //    var lev = new Level(lf);
+                //    lev.Id = "temp";
+                //    //lev.Llu = new LLU();
 
-                    lev.Contour = poly;
-                    
+                //    var pts = lev.Flats.SelectMany(f => Robot.Util.GetCurveCorners(f.Contour)).ToList();
+                //    var bbox = new BoundingBox(pts);
+                //    var ptsCor = bbox.GetCorners().Take(4).ToList();
+                //    ptsCor.Add(ptsCor[0]);
+                //    var poly = new Polyline(ptsCor).ToPolylineCurve();
 
-                    levels.Add(lev);
-                }
+                //    lev.Contour = poly;
+
+
+                //    levels.Add(lev);
+                //}
             }
 
             return levels;
+        }
+
+        private static Point3d[] GetPoints(string[] codes)
+        {
+            var points = new Point3d[codes.Length];
+
+            //верхние шаги начинаются не с нуля, если у левая нижняя квартира - распашонка
+            int topSteps = int.Parse(codes[0].Split('_')[1]);
+            int bottomSteps = 0;
+
+            int step = 3500;
+            int height = 14760;
+
+            bool topRow = false;
+
+            //Перебор кодов в строке и создание точек вставки
+            for (int i = 0; i < codes.Length; i++)
+            {
+                //количество верхних и нижних шагов
+                int codeTopSteps;
+                int codeBotSteps;
+
+                if (codes[i] == "llu")
+                {
+                    codeTopSteps = 2;
+                    codeBotSteps = 0;
+                }
+                else
+                {
+                    codeTopSteps = int.Parse(codes[i].Split('_')[1]);
+                    codeBotSteps = int.Parse(codes[i].Split('_')[2]);
+                }
+
+
+                if (!topRow) //нижний ряд
+                {
+                    if (codes[i].StartsWith("CR")) //крайняя правая квартира нижнего ряда
+                    {
+                        topRow = true;
+                        bottomSteps += codeBotSteps;
+                        points[i] = new Point3d(bottomSteps * step, 0, 0);
+                    }
+                    else //обычные нижние хаты
+                    {
+                        points[i] = new Point3d(bottomSteps * step, 0, 0);
+                        bottomSteps += codeBotSteps;
+                    }
+
+                }
+                else //верхний ряд
+                {
+                    if (codes[i].StartsWith("CR")) //крайняя правая квартира верхнего ряда
+                    {
+                        topSteps += codeTopSteps;
+                        points[i] = new Point3d(topSteps * step, height, 0);
+                    }
+                    else //обычные квартиры сверху и ллу
+                    {
+                        points[i] = new Point3d(topSteps * step, height, 0);
+                        topSteps += codeTopSteps;
+                    }
+
+                }
+
+            }
+
+            return points;
         }
 
         private void GetCombinations(string[] codes, int index)
@@ -255,7 +267,11 @@ namespace TestPlugin
                 {
                     var temp = currentFlatStack.ToList();
                     temp.Reverse();
-                    AllFlatCombinations.Add(temp);
+                    string levelCode = GetLevelCode(temp);
+                    if (allFlatCombinations.ContainsKey(levelCode))
+                        allFlatCombinations[levelCode].Add(temp);
+                    else
+                        allFlatCombinations.Add(levelCode, new List<List<Flat>> { temp });
                 }
                 else
                 {
@@ -266,38 +282,50 @@ namespace TestPlugin
                 
         }
 
+        private string GetLevelCode(List<Flat> flats)
+        {
+            var code = new int[5];
+            foreach (var flat in flats)
+            {
+                if (!flat.Id.ToLower().StartsWith("llu"))
+                    code[flat.RoomQty]++;
+            }
+
+            return string.Join("_", code);
+        }
+
         /// <summary>
         /// Передвигает нужные квартиры на место
         /// </summary>
         /// <param name="codes"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        private List<List<Flat>> MoveFlats(Point3d[] points)
-        {
-            var result = new List<List<Flat>>();
+        //private List<List<Flat>> MoveFlats(Point3d[] points)
+        //{
+        //    var result = new List<List<Flat>>();
 
-            foreach (List<Flat> flatComb in AllFlatCombinations)
-            {                
-                List<Flat> fl = new List<Flat>();
-                for (int i = 0; i < points.Length; i++)
-                {
-                    var flat = flatComb[i];
+        //    foreach (List<Flat> flatComb in AllFlatCombinations)
+        //    {                
+        //        List<Flat> fl = new List<Flat>();
+        //        for (int i = 0; i < points.Length; i++)
+        //        {
+        //            var flat = flatComb[i];
 
-                    var vec = new Vector3d(points[i].X - flat.BasePlane.OriginX,
-                            points[i].Y - flat.BasePlane.OriginY,
-                            points[i].Z - flat.BasePlane.OriginZ);
+        //            var vec = new Vector3d(points[i].X - flat.BasePlane.OriginX,
+        //                    points[i].Y - flat.BasePlane.OriginY,
+        //                    points[i].Z - flat.BasePlane.OriginZ);
 
-                    var xform = Transform.Translation(vec);
+        //            var xform = Transform.Translation(vec);
 
-                    var levelFlat = new Flat(flat);
-                    levelFlat = levelFlat.Transform(xform) as Flat;
+        //            var levelFlat = new Flat(flat);
+        //            levelFlat = levelFlat.Transform(xform) as Flat;
 
-                    fl.Add(levelFlat);
-                }
-                result.Add(fl);
-            }
-            return result;
-        }
+        //            fl.Add(levelFlat);
+        //        }
+        //        result.Add(fl);
+        //    }
+        //    return result;
+        //}
 
         /// <summary>
         /// Удаляет строки, в которых есть кврартиры, отсутсвующие в flats (Катя)
