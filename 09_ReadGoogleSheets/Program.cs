@@ -46,7 +46,7 @@ namespace SheetsQuickstart
 
             // Define request parameters.
             String spreadsheetId = "1kL0cEVkh0dTVY6CfCCJij30Sh_D9XhylaOVFQxsZJXk";
-            String range = "Типовой этаж!3:14";
+            String range = "Типовой этаж!2:12";
             SpreadsheetsResource.GetRequest request = service.Spreadsheets.Get(spreadsheetId);
             request.Ranges = range;
             request.IncludeGridData = true;
@@ -58,9 +58,9 @@ namespace SheetsQuickstart
         }
 
         private static void SaveHblockFlats(IList<RowData> rows, string currentDirectory)
-        {
-            var flatIds = rows.Last().Values;
-            foreach (var row in rows)
+        { 
+            var flatIds = rows.First().Values;
+            foreach (var row in rows.Skip(1))
             {
                 var hblockCode = row.Values[1].FormattedValue;
                 if (string.IsNullOrEmpty(hblockCode))
