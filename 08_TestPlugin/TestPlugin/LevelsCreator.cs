@@ -145,44 +145,81 @@ namespace TestPlugin
             var levels = new List<Level>();
             allFlatCombinations = new Dictionary<string, List<List<Flat>>>();
 
+            //просчитать все комбинации квартир
             foreach (var comb in goodCombinations)
             {
-                var codes = comb.Split(',');                
-
-                
+                var codes = comb.Split(','); 
 
                 //Собрать все возможные комбинации из доступных квартир для текущего кода уровня
-                //AllFlatCombinations = new List<List<Flat>>();
                 currentFlatStack = new Stack<Flat>();
                 GetCombinations(codes, 0);
 
                 //var points = GetPoints(codes);
 
-                //Переместить квартиры на место
-                //List<List<Flat>> levelFlats = MoveFlats(points);
+                
+            }
 
-                //foreach (var lf in levelFlats)
-                //{
-                //    //временно, потом поправить
+            //оставить максимум 50 комбинаций на тип
+            var randomFlatCombinations = ReduceFlatCombinations(50);
 
-                //    var lev = new Level(lf);
-                //    lev.Id = "temp";
-                //    //lev.Llu = new LLU();
+            //Создать уровни из оставшихся комбинаций
+            foreach (var key in randomFlatCombinations.Keys)
+            {
+                foreach (var flats in randomFlatCombinations[key])
+                {
+                    var levelCode = GetLevelCode(flats);
+                    var points = GetPoints(levelCode);
 
-                //    var pts = lev.Flats.SelectMany(f => Robot.Util.GetCurveCorners(f.Contour)).ToList();
-                //    var bbox = new BoundingBox(pts);
-                //    var ptsCor = bbox.GetCorners().Take(4).ToList();
-                //    ptsCor.Add(ptsCor[0]);
-                //    var poly = new Polyline(ptsCor).ToPolylineCurve();
+                    //Переместить квартиры на место
+                    List<Flat> levelFlats = MoveFlats(flats, points);
 
-                //    lev.Contour = poly;
+                    //создать уровень
+                    var lev = new Level(levelFlats)
+                    {
+                        //TODO: добавить нормальное название
+                        Id = "temp"
+                    };
 
+                    //TODO: придумать как сделать нормальный контур уровня вместо bbox
+                    var pts = lev.Flats.SelectMany(f => Robot.Util.GetCurveCorners(f.Contour)).ToList();
+                    var bbox = new BoundingBox(pts);
+                    var ptsCor = bbox.GetCorners().Take(4).ToList();
+                    ptsCor.Add(ptsCor[0]);
+                    var poly = new Polyline(ptsCor).ToPolylineCurve();
 
-                //    levels.Add(lev);
-                //}
+                    lev.Contour = poly;
+
+                    levels.Add(lev);                    
+                }
             }
 
             return levels;
+        }
+
+        private string[] GetLevelCode(List<Flat> flats)
+        {
+            string[] code = new string[flats.Count];
+            for (int i=0; i < flats.Count; i++)
+            {
+                if (flats[i].Id.ToLower().StartsWith("llu"))
+                    code[i] = "llu";
+                else
+                    code[i] = flats[i].Code;
+            }
+            return code;
+        }
+
+        private Dictionary<string, List<List<Flat>>> ReduceFlatCombinations(int maxNumber)
+        {
+            var rnd = new Random();
+            var reduced = new Dictionary<string, List<List<Flat>>>();
+            foreach (var key in allFlatCombinations.Keys)
+            {
+                var left = allFlatCombinations[key].OrderBy(i => rnd.Next()).Take(maxNumber).ToList();
+                reduced.Add(key, left);
+            }
+
+            return reduced;
         }
 
         private static Point3d[] GetPoints(string[] codes)
@@ -267,7 +304,7 @@ namespace TestPlugin
                 {
                     var temp = currentFlatStack.ToList();
                     temp.Reverse();
-                    string levelCode = GetLevelCode(temp);
+                    string levelCode = GetAptTypology(temp);
                     if (allFlatCombinations.ContainsKey(levelCode))
                         allFlatCombinations[levelCode].Add(temp);
                     else
@@ -282,7 +319,7 @@ namespace TestPlugin
                 
         }
 
-        private string GetLevelCode(List<Flat> flats)
+        private string GetAptTypology(List<Flat> flats)
         {
             var code = new int[5];
             foreach (var flat in flats)
@@ -300,32 +337,27 @@ namespace TestPlugin
         /// <param name="codes"></param>
         /// <param name="points"></param>
         /// <returns></returns>
-        //private List<List<Flat>> MoveFlats(Point3d[] points)
-        //{
-        //    var result = new List<List<Flat>>();
+        private List<Flat> MoveFlats(List<Flat> flatComb, Point3d[] points)
+        {
+            List<Flat> fl = new List<Flat>();
+            for (int i = 0; i < points.Length; i++)
+            {
+                var flat = flatComb[i];
 
-        //    foreach (List<Flat> flatComb in AllFlatCombinations)
-        //    {                
-        //        List<Flat> fl = new List<Flat>();
-        //        for (int i = 0; i < points.Length; i++)
-        //        {
-        //            var flat = flatComb[i];
+                var vec = new Vector3d(points[i].X - flat.BasePlane.OriginX,
+                        points[i].Y - flat.BasePlane.OriginY,
+                        points[i].Z - flat.BasePlane.OriginZ);
 
-        //            var vec = new Vector3d(points[i].X - flat.BasePlane.OriginX,
-        //                    points[i].Y - flat.BasePlane.OriginY,
-        //                    points[i].Z - flat.BasePlane.OriginZ);
+                var xform = Transform.Translation(vec);
 
-        //            var xform = Transform.Translation(vec);
+                var levelFlat = new Flat(flat);
+                levelFlat = levelFlat.Transform(xform) as Flat;
 
-        //            var levelFlat = new Flat(flat);
-        //            levelFlat = levelFlat.Transform(xform) as Flat;
-
-        //            fl.Add(levelFlat);
-        //        }
-        //        result.Add(fl);
-        //    }
-        //    return result;
-        //}
+                fl.Add(levelFlat);
+            }
+            
+            return fl;
+        }
 
         /// <summary>
         /// Удаляет строки, в которых есть кврартиры, отсутсвующие в flats (Катя)
