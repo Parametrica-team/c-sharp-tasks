@@ -21,7 +21,7 @@ namespace TestPlugin
         public List<Level> Levels { get; }
                 
 
-        public LevelsCreator(List<Flat> flats, string combinationsTxt)
+        public LevelsCreator(List<Flat> flats, string combinationsTxt, double step, double width, int maxNumber)
         {
             this.flats = flats;
             this.combinations = combinationsTxt;
@@ -45,7 +45,7 @@ namespace TestPlugin
             var goodCombinations = DeleteExtraRows();            
 
             //создать уровни из комбинаций
-            List<Level> levels = CreateLevelFromCombinations(goodCombinations);
+            List<Level> levels = CreateLevelFromCombinations(goodCombinations, step, width, maxNumber);
 
             //сортировать по
             List<List<Level>> sortedLevels = SortLevels(levels);
@@ -140,7 +140,7 @@ namespace TestPlugin
         /// </summary>
         /// <param name="goodCombinations">список комбинаций</param>
         /// <returns></returns>
-        private List<Level> CreateLevelFromCombinations(List<string> goodCombinations)
+        private List<Level> CreateLevelFromCombinations(List<string> goodCombinations, double step, double width, int maxNumber)
         {
             var levels = new List<Level>();
             allFlatCombinations = new Dictionary<string, List<List<Flat>>>();
@@ -160,7 +160,7 @@ namespace TestPlugin
             }
 
             //оставить максимум 50 комбинаций на тип
-            var randomFlatCombinations = ReduceFlatCombinations(50);
+            var randomFlatCombinations = ReduceFlatCombinations(maxNumber);
 
             //Создать уровни из оставшихся комбинаций
             foreach (var key in randomFlatCombinations.Keys)
@@ -168,7 +168,7 @@ namespace TestPlugin
                 foreach (var flats in randomFlatCombinations[key])
                 {
                     var levelCode = GetLevelCode(flats);
-                    var points = GetPoints(levelCode);
+                    var points = GetPoints(levelCode, width, step);
 
                     //Переместить квартиры на место
                     List<Flat> levelFlats = MoveFlats(flats, points);
@@ -222,16 +222,13 @@ namespace TestPlugin
             return reduced;
         }
 
-        private static Point3d[] GetPoints(string[] codes)
+        private static Point3d[] GetPoints(string[] codes, double height, double step)
         {
             var points = new Point3d[codes.Length];
 
             //верхние шаги начинаются не с нуля, если у левая нижняя квартира - распашонка
             int topSteps = int.Parse(codes[0].Split('_')[1]);
             int bottomSteps = 0;
-
-            int step = 3500;
-            int height = 14760;
 
             bool topRow = false;
 

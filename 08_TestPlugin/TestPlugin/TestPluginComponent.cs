@@ -35,7 +35,9 @@ namespace TestPlugin
         {
             pManager.AddGenericParameter("Flats", "F", "All available flats", GH_ParamAccess.list);
             pManager.AddTextParameter("Combinations", "C", "All possible combinations", GH_ParamAccess.item);
-           // pManager.AddNumberParameter("");
+            pManager.AddNumberParameter("Width", "W", "Hblock width", GH_ParamAccess.item, 14760);
+            pManager.AddNumberParameter("Step", "S", "Step width", GH_ParamAccess.item, 3500);
+            pManager.AddIntegerParameter("Maximum", "M", "Maximum number of levels in a column", GH_ParamAccess.item, 50);
         }
 
         /// <summary>
@@ -55,13 +57,20 @@ namespace TestPlugin
         {
             var flats = new List<Flat>();
             string combinationsTxt = "";
+            double width = 0;
+            int maxNumber = 0;
+            double step = 0;
 
-            DA.GetDataList(0, flats);
-            DA.GetData(1, ref combinationsTxt);
+
+            if (!DA.GetDataList(0, flats)) return;
+            if (!DA.GetData(1, ref combinationsTxt)) return;
+            DA.GetData(2, ref width);
+            DA.GetData(3, ref step);
+            DA.GetData(4, ref maxNumber);
 
 
 
-            var levelCreator = new LevelsCreator(flats, combinationsTxt);
+            var levelCreator = new LevelsCreator(flats, combinationsTxt, step, width, maxNumber);
 
             DA.SetDataList(0, levelCreator.Levels);
         }
