@@ -62,7 +62,7 @@ namespace SheetsQuickstart
             var flatIds = rows.First().Values;
             foreach (var row in rows.Skip(1))
             {
-                var hblockCode = row.Values[1].FormattedValue;
+                var hblockCode = row.Values[3].FormattedValue;
                 if (string.IsNullOrEmpty(hblockCode))
                     continue;
 
