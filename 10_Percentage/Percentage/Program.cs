@@ -10,7 +10,7 @@ namespace Percentage
             Console.WriteLine("Hello World!");
         }
 
-        public static List<int> AdjustPercenage(List<double> numbers)
+        public static List<int> AdjustPercentage(List<double> numbers)
         {
             var result = new List<int>();
 
