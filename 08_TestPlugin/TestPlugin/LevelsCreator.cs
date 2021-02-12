@@ -358,6 +358,9 @@ namespace TestPlugin
 
         /// <summary>
         /// Удаляет строки, в которых есть кврартиры, отсутсвующие в flats (Катя)
+        
+
+
         /// </summary>
         /// <returns></returns>
         private List<string> DeleteExtraRows()
