@@ -37,5 +37,14 @@ namespace PercentageTests
             var result = Percentage.Program.AdjustPercentage(input);
             Assert.AreEqual(correctResult, result);
         }
+
+        [Test]
+        public void AdjustPercenage_Test_BigDifference()
+        {
+            var input = new List<double> { 3.5, 1.5, 1.6, 3.5, 1.9 };
+            var correctResult = new List<int> { 3, 2, 2, 3, 2 };
+            var result = Percentage.Program.AdjustPercentage(input);
+            Assert.AreEqual(correctResult, result);
+        }
     }
 }
