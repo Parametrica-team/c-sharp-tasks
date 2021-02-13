@@ -18,8 +18,11 @@ namespace Percentage
 
             if (numbers.Sum() != (int)numbers.Sum())
             {
-                throw new ArgumentException("Сумма аргументов должна быть целым числом");
+                throw new ArgumentException("Сумма аргументов должна быть целым числом", nameof(numbers));
             }
+
+            var test = Math.Round(0.5);
+            var test2 = Math.Round(1.5);
 
             var result = numbers.Select(n => (int)Math.Round(n)).ToList();
 
@@ -32,8 +35,9 @@ namespace Percentage
             {
                 // нужно отсортировать индексы исходных значений в зависимости от дробной части
                 var sortedIndexes = numbers.Select((num, index) => new { num, index })
-                    .Where(pair => pair.num % 1 >= 0.5)
+                    .Where(pair => pair.num % 1 > 0.5 || (pair.num % 1 == 0.5 && ((int)pair.num % 2 != 0)))
                     .OrderBy(pair => pair.num % 1)
+                    .ThenByDescending(pair => pair.num)
                     .Select(pair => pair.index)
                     .ToList();
 
@@ -46,8 +50,9 @@ namespace Percentage
             {
                 // нужно отсортировать индексы исходных значений в зависимости от дробной части
                 var sortedIndexes = numbers.Select((num, index) => new { num, index })
-                    .Where(pair => pair.num % 1 > 0 && (pair.num % 1) < 0.5)
+                    .Where(pair => (pair.num % 1 > 0 && (pair.num % 1) < 0.5) || (pair.num % 1 == 0.5 && ((int)pair.num % 2 == 0)))
                     .OrderByDescending(pair => pair.num % 1)
+                    .ThenByDescending(pair => pair.num)
                     .Select(pair => pair.index)
                     .ToList();
 
